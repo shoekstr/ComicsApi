@@ -6,51 +6,51 @@ const StringDecoder = require('string_decoder').StringDecoder
 const config = require('./config')
 
 const httpServerOptions = {
-    key: fs.readFileSync('./http/key.pem'),
-    cert: fs.readFileSync('./http/cert.pem')
+  key: fs.readFileSync('./https/key.pem'),
+  cert: fs.readFileSync('./https/cert.pem')
 }
 
 const httpsServer = https.createServer(httpServerOptions, (req, res) => {
-    unifiedServer(req, res)
+  unifiedServer(req, res)
 })
 
 httpsServer.listen(config.httpsPort, () => {
-    console.log('The HTTPS server is running on port ' + config.httpsPort)
+  console.log('The HTTPS server is running on port ' + config.httpsPort)
 })
 
 const unifiedServer = (req, res) => {
-    const parsedUrl = url.parse(req.url, true)
+  const parsedUrl = url.parse(req.url, true)
 
-    const path = parsedUrl.pathName
-    const trimmedPath = path.replace(/^\/+|\/+$/g, '')
+  const path = parsedUrl.pathName
+  const trimmedPath = path.replace(/^\/+|\/+$/g, '')
 
-    const queryStringObject = parsedUrl.query
+  const queryStringObject = parsedUrl.query
 
-    const method = req.method.toLowerCase()
+  const method = req.method.toLowerCase()
 
-    const headers = req.headers
+  const headers = req.headers
 
-    const decoder = new StringDecoder('utf-8')
-    let buffer = ''
+  const decoder = new StringDecoder('utf-8')
+  let buffer = ''
 
-    req.on('data', (data) => {
-        buffer += decoder.write(data)
-    })
+  req.on('data', (data) => {
+    buffer += decoder.write(data)
+  })
 
-    req.on('end', () => {
-        buffer += decoder.end()
-    })
+  req.on('end', () => {
+    buffer += decoder.end()
+  })
 
-    const data = {
-        trimmedPath: trimmedPath,
-        queryStringObject: queryStringObject,
-        method: method,
-        headers: headers,
-        payload: buffer
-    }
+  const data = {
+    trimmedPath: trimmedPath,
+    queryStringObject: queryStringObject,
+    method: method,
+    headers: headers,
+    payload: buffer
+  }
 
-    console.log(data)
+  console.log(data)
 
-    res.setHeader('Content-Type', 'application/json')
-    res.writeHead(200)
+  res.setHeader('Content-Type', 'application/json')
+  res.writeHead(200)
 }
